@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package plinko;
+
+enum GameMode {
+  EASY    = 0;
+  MEDIUM  = 1;
+  HARD    = 2;
+  EXTREME = 3;
+}
+
+service PlinkoService {
+  rpc Play       (PlayRequest)   returns (PlayResponse);
+  rpc GetBalance (BalanceRequest) returns (BalanceResponse);
+}
+
+message PlayRequest {
+  string   user_id  = 1;   // UUID as string
+  uint64   bet_u64  = 2;   // chips in nano-units
+  GameMode mode     = 3;   // new
+}
+
+message PlayResponse {
+  uint64 payout_u64      = 1;
+  int32  slot_index      = 2; // which bucket the ball landed in (0-8)
+  uint64 new_balance_u64 = 3;
+}
+
+message BalanceRequest  { string user_id   = 1; }
+message BalanceResponse { uint64 balance_u64 = 1; }
