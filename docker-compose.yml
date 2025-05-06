@@ -64,19 +64,19 @@ services:
           cpus: "2.0"
           memory: "4g"
 
-  backend:
-    build: .
-    depends_on:
-      cockroach:
-        condition: service_healthy
-    environment:
-      # Talk to Cockroach inside the compose network
-      COCKROACH_URL: postgres://root@cockroach:26257/casino?sslmode=disable
-      # Uncomment once you really need Scylla
-      # SCYLLA_NODES: scylla:9042
-    ports:
-      - "50051:50051"   # gRPC
-      - "3000:3000"     # /ready
+  # backend:
+  #   build: .
+  #   depends_on:
+  #     cockroach:
+  #       condition: service_healthy
+  #   environment:
+  #     # Talk to Cockroach inside the compose network
+  #     COCKROACH_URL: postgres://root@cockroach:26257/casino?sslmode=disable
+  #     # Uncomment once you really need Scylla
+  #     # SCYLLA_NODES: scylla:9042
+  #   ports:
+  #     - "50051:50051"   # gRPC
+  #     - "3000:3000"     # /ready
 
 volumes:
   cockroach-data:
