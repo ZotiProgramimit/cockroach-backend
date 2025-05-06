@@ -2,9 +2,7 @@
     FROM rust:1.77 AS builder
     WORKDIR /app
     COPY . .
-    RUN --mount=type=cache,target=/usr/local/cargo/registry \
-        --mount=type=cache,target=/usr/local/cargo/git \
-        cargo build --release
+    RUN cargo build --release --locked -j 1   # -j 1 keeps RAM ≤ 1 GB on Railway
     
     # ---------- runtime ----------
     FROM debian:bookworm-slim
