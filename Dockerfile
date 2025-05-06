@@ -1,10 +1,8 @@
-# ---------- build ----------
-    FROM rust:1.83-slim-bookworm AS builder   # newer Cargo; lock-file v4 is fine
+    FROM rust:1.83-slim-bookworm AS builder
     WORKDIR /app
     COPY . .
     RUN cargo build --release --locked -j 1
     
-    # ---------- runtime ----------
     FROM debian:bookworm-slim
     ENV DEBIAN_FRONTEND=noninteractive
     RUN apt-get update \
