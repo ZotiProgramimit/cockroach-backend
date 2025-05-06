@@ -2,3 +2,4 @@
 pub mod plinko {
     tonic::include_proto!("plinko");
 }
+ 

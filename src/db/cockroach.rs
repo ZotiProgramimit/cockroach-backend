@@ -19,7 +19,7 @@ pub async fn init_cockroach(url: &str) -> Result<PgPool> {
     pool.execute(
         r#"
         INSERT INTO accounts (id, username, balance)
-        VALUES ('00000000-0000-0000-0000-000000000001', 'demo', 100000)
+        VALUES ('00000000-0000-0000-0000-000000000001', 'boneca_ambalabu', 100000)
         ON CONFLICT (id) DO NOTHING;
         "#,
     )
