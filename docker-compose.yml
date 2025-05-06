@@ -1,33 +1,84 @@
+# version: "3.9"
+# services:
+#   cockroach:
+#     image: cockroachdb/cockroach:v24.1.0
+#     command: start-single-node --insecure
+#     ports:
+#       - "26257:26257"   # SQL
+#       - "8080:8080"     # Admin UI
+#     volumes:
+#       - cockroach-data:/cockroach/cockroach-data
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: "8.0"         # Give CockroachDB 6 vCPUs
+#           memory: "20g"        # and 6 GB of RAM
+
+#   scylla:
+#     image: scylladb/scylla:5.4
+#     command: --smp 2 --overprovisioned 1
+#     ports:
+#       - "9042:9042"     # CQL  
+#       - "10000:10000"   # Alternator (optional)
+#     volumes:
+#       - scylla-data:/var/lib/scylla
+#     deploy:
+#       resources:
+#         limits:
+#           cpus: "2.0"         # Give Scylla 4 vCPUs
+#           memory: "4g"        # and 4 GB of RAM
+
+# volumes:
+#   cockroach-data:
+#   scylla-data:
+
+
 version: "3.9"
+
 services:
   cockroach:
     image: cockroachdb/cockroach:v24.1.0
-    command: start-single-node --insecure
+    command: start-single-node --insecure --store=attrs=ssd,path=/cockroach/cockroach-data
     ports:
-      - "26257:26257"   # SQL
-      - "8080:8080"     # Admin UI
+      - "26257:26257"
+      - "8080:8080"
     volumes:
       - cockroach-data:/cockroach/cockroach-data
-    deploy:
-      resources:
-        limits:
-          cpus: "8.0"         # Give CockroachDB 6 vCPUs
-          memory: "20g"        # and 6 GB of RAM
+    healthcheck:
+      test: ["CMD-SHELL", "cockroach node status --insecure --host=localhost || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   scylla:
     image: scylladb/scylla:5.4
     command: --smp 2 --overprovisioned 1
     ports:
-      - "9042:9042"     # CQL  
-      - "10000:10000"   # Alternator (optional)
+      - "9042:9042"
+      - "10000:10000"
     volumes:
       - scylla-data:/var/lib/scylla
     deploy:
       resources:
         limits:
-          cpus: "2.0"         # Give Scylla 4 vCPUs
-          memory: "4g"        # and 4 GB of RAM
+          cpus: "2.0"
+          memory: "4g"
+
+  backend:
+    build: .
+    depends_on:
+      cockroach:
+        condition: service_healthy
+    environment:
+      # Talk to Cockroach inside the compose network
+      COCKROACH_URL: postgres://root@cockroach:26257/casino?sslmode=disable
+      # Uncomment once you really need Scylla
+      # SCYLLA_NODES: scylla:9042
+    ports:
+      - "50051:50051"   # gRPC
+      - "3000:3000"     # /ready
 
 volumes:
   cockroach-data:
   scylla-data:
+
